@@ -15,7 +15,7 @@ function App() {
   const CONTRACT_ADDRESS = "0xD0E7771D31452734A6e3B3b19B03c2e13f7eAD8E";
 
   // URL Backend (Ganti dengan URL Vercel Backend jika sudah di-deploy nanti)
-  const BACKEND_URL = "https://supplychain-blockchain-vugl.vercel.app/"; 
+  const BACKEND_URL = "https://supplychain-blockchain-vugl.vercel.app"; 
 
   // PASTE ABI YANG ANDA SALIN DARI REMIX DI SINI
   const CONTRACT_ABI = [
