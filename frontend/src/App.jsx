@@ -11,8 +11,169 @@ function App() {
   const [trackingData, setTrackingData] = useState(null);
   const [backendLogs, setBackendLogs] = useState([]);
 
+  // MASUKKAN ALAMAT KONTRAK YANG ANDA SALIN DARI REMIX DI SINI
+  const CONTRACT_ADDRESS = "0xD0E7771D31452734A6e3B3b19B03c2e13f7eAD8E";
+
   // URL Backend (Ganti dengan URL Vercel Backend jika sudah di-deploy nanti)
   const BACKEND_URL = "https://supplychain-blockchain-vugl.vercel.app/"; 
+
+  // PASTE ABI YANG ANDA SALIN DARI REMIX DI SINI
+  const CONTRACT_ABI = [
+  [
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "itemId",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "lokasi",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "catatan",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "timestamp",
+				"type": "uint256"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "operator",
+				"type": "address"
+			}
+		],
+		"name": "LogDicatat",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_itemId",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_lokasi",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_catatan",
+				"type": "string"
+			}
+		],
+		"name": "tambahLog",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "ambilSemuaRiwayat",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "string",
+						"name": "itemId",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "lokasi",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "catatan",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "timestamp",
+						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "operator",
+						"type": "address"
+					}
+				],
+				"internalType": "struct SupplyChain.LogBarang[]",
+				"name": "",
+				"type": "tuple[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "hitungTotalLog",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "riwayatLogistik",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "itemId",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "lokasi",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "catatan",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "timestamp",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "operator",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+]
+];
 
   // Ambil data log dari backend saat aplikasi pertama kali dibuka
   useEffect(() => {
@@ -55,15 +216,41 @@ function App() {
   };
 
   // 2. Penguncian Data ke Jaringan Blockchain & Simpan ke Backend
-  const simpanData = async (e) => {
+const simpanData = async (e) => {
     e.preventDefault();
     if (!isConnected) return alert("Wajib melakukan autentikasi via MetaMask!");
     if (!productId || !location || !statusNote) return alert("Mohon isi semua data!");
 
-    // A. Simulasi Trigger Konsensus Blockchain
-    alert(`Mekanisme Konsensus Jaringan Sepolia Dipicu!\n\nData Produk [ ${productId} ] akan di-hash dan dikunci secara permanen di Blockchain.`);
+    // A. PROSES ASLI: KUNCI DATA KE BLOCKCHAIN SEPOLIA (WEB3)
+    try {
+      if (typeof window.ethereum === 'undefined') {
+        alert("Silakan instal MetaMask terlebih dahulu!");
+        return;
+      }
 
-    // B. Kirim data ke Backend API agar tersimpan di database sistem informasi
+      // Inisialisasi provider dari MetaMask
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      
+      // Hubungkan dengan Smart Contract Sepolia Anda menggunakan Alamat dan ABI dari Remix
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+      
+      alert(`Mekanisme Konsensus Jaringan Sepolia Dipicu!\n\nData Produk [ ${productId} ] akan di-hash. Silakan setujui Gas Fee di MetaMask untuk mengunci data secara permanen.`);
+      
+      // Memanggil fungsi 'tambahLog' yang ada di Smart Contract Solidity Anda
+      const tx = await contract.tambahLog(productId, location, statusNote);
+      
+      // Menunggu transaksi divalidasi oleh blok jaringan Sepolia
+      await tx.wait();
+      alert("Sukses! Data resmi dikunci secara permanen di Blockchain Sepolia (Web3).");
+
+    } catch (error) {
+      console.error(error);
+      alert("Gagal mengunci data ke Blockchain: " + error.message);
+      return; // Menghentikan eksekusi ke backend jika transaksi blockchain ditolak/gagal
+    }
+
+    // B. Kirim data ke Backend API agar tersimpan di database sistem informasi (WEB2)
     try {
       const response = await fetch(`${BACKEND_URL}/api/logs`, {
         method: 'POST',
@@ -72,14 +259,14 @@ function App() {
       });
 
       if (response.ok) {
-        alert("Sukses! Data berhasil diamankan di Blockchain & dicatat di Server Backend.");
+        alert("Sukses! Data juga berhasil dicatat di Server Backend.");
         setProductId("");
         setLocation("");
         setStatusNote("");
-        muatDataBackend(); // Refresh tabel riwayat
+        muatDataBackend(); // Refresh tabel riwayat agar data baru langsung muncul
       }
     } catch (error) {
-      alert("Data berhasil disimulasikan di Blockchain, namun Server Backend lokal Anda belum dinyalakan.");
+      alert("Data sukses di Blockchain, namun Server Backend Anda belum merespons.");
     }
   };
 
