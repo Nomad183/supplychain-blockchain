@@ -135,11 +135,12 @@ function App() {
       
       alert(`Mekanisme Konsensus Jaringan Sepolia Dipicu!\n\nData Produk [ ${productId} ] akan di-hash. Silakan setujui Gas Fee di MetaMask untuk mengunci data secara permanen.`);
       
-      const tx = await contract.getFunction("tambahLog")(productId, location, statusNote);
+      // Menggunakan metode v6 untuk memanggil fungsi smart contract nonpayable
+      const tx = await contract.tambahLog(productId, location, statusNote);
       liveTxHash = tx.hash; // Menangkap TxHash asli dari MetaMask
 
-      const receipt = await tx.wait(); // Menunggu blok tervalidasi di Sepolia
-      liveBlockNumber = receipt.blockNumber.toString(); // Menangkap nomor blok asli
+      const receipt = await tx.wait(); // Menunggu blok tervalidasi di Sepolia (Proses Validasi Gas Fee)
+      liveBlockNumber = receipt.blockNumber.toString(); // Menangkap nomor blok asli setelah masuk jaringan
 
       alert("Sukses! Data resmi dikunci secara permanen di Blockchain Sepolia (Web3).");
 
@@ -158,8 +159,8 @@ function App() {
           id: productId, 
           lokasi: location, 
           catatan: statusNote,
-          txHash: liveTxHash,          // Mengirim Hash Asli ke Database
-          blockNumber: liveBlockNumber // Mengirim Nomor Blok Asli ke Database
+          txHash: liveTxHash,          // Mengirim Hash Asli ke Database Vercel
+          blockNumber: liveBlockNumber // Mengirim Nomor Blok Asli ke Database Vercel
         })
       });
 
@@ -194,7 +195,7 @@ function App() {
       alert("ID Produk tidak ditemukan dalam manifest rantai pasok.");
       setTrackingData(null);
     }
-  }; // Kurung kurawal penutup fungsi yang sebelumnya hilang sudah diperbaiki
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-between font-sans">
@@ -315,7 +316,19 @@ function App() {
               <div className="mt-5 bg-slate-50 rounded-xl p-4 border border-slate-200 space-y-3">
                 <div className="flex justify-between items-center flex-wrap gap-2">
                   <span className="text-xs font-mono bg-blue-100 text-blue-800 px-2.5 py-1 rounded-full font-semibold">
-                    Blok Terverifikasi: #{trackingData.blockNumber}
+                    Blok Terverifikasi:{" "}
+                    {trackingData.blockNumber && trackingData.blockNumber !== "Memproses..." ? (
+                      <a 
+                        href={`https://sepolia.etherscan.io/block/${trackingData.blockNumber}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline hover:text-blue-700 font-bold"
+                      >
+                        #{trackingData.blockNumber}
+                      </a>
+                    ) : (
+                      <span>Memproses...</span>
+                    )}
                   </span>
                   <span className="text-xs font-semibold text-emerald-600 flex items-center gap-1">
                     ● Integritas Data Terjamin (Valid)
@@ -329,13 +342,12 @@ function App() {
                 </div>
                 <div className="pt-2 border-t border-slate-200 font-mono text-[10px] break-all">
                   <p className="font-semibold text-slate-500 mb-1">Bukti Fungsi Hash (TxHash):</p>
-                  {/* UPDATE: Mengubah teks buntu menjadi Hyperlink interaktif ke Sepolia Etherscan */}
                   {trackingData.txHash ? (
                     <a 
                       href={`https://sepolia.etherscan.io/tx/${trackingData.txHash}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-blue-500 hover:text-blue-700 hover:underline cursor-pointer block"
+                      className="text-blue-500 hover:text-blue-700 hover:underline cursor-pointer block font-semibold"
                     >
                       {trackingData.txHash}
                     </a>
