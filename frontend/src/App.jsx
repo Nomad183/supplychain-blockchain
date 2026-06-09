@@ -72,7 +72,7 @@ function App() {
     "type": "function"
   }
 ];
-];
+
 
   // Ambil data log dari backend saat aplikasi pertama kali dibuka
   useEffect(() => {
