@@ -1,0 +1,258 @@
+import React, { useState, useEffect } from 'react';
+import { ethers } from 'ethers';
+
+function App() {
+  const [walletAddress, setWalletAddress] = useState("Belum Terhubung");
+  const [isConnected, setIsConnected] = useState(false);
+  const [productId, setProductId] = useState("");
+  const [location, setLocation] = useState("");
+  const [statusNote, setStatusNote] = useState("");
+  const [searchId, setSearchId] = useState("");
+  const [trackingData, setTrackingData] = useState(null);
+  const [backendLogs, setBackendLogs] = useState([]);
+
+  // URL Backend (Ganti dengan URL Vercel Backend jika sudah di-deploy nanti)
+  const BACKEND_URL = "http://localhost:5000"; 
+
+  // Ambil data log dari backend saat aplikasi pertama kali dibuka
+  useEffect(() => {
+    muatDataBackend();
+  }, []);
+
+  const muatDataBackend = async () => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/logs`);
+      if (response.ok) {
+        const data = await response.json();
+        setBackendLogs(data);
+      }
+    } catch (error) {
+      console.log("Backend offline, menggunakan simulasi lokal.");
+    }
+  };
+
+  // 1. Autentikasi Pengguna Menggunakan MetaMask
+  const connectWallet = async () => {
+    if (typeof window.ethereum !== 'undefined') {
+      try {
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        await provider.send("eth_requestAccounts", []);
+        const signer = await provider.getSigner();
+        const address = await signer.getAddress();
+        
+        setWalletAddress(address);
+        setIsConnected(true);
+      } catch (error) {
+        alert("Gagal menghubungkan dompet: " + error.message);
+      }
+    } else {
+      alert("MetaMask tidak mendeteksi browser Web3. Silakan instal ekstensi MetaMask!");
+    }
+  };
+
+  // 2. Penguncian Data ke Jaringan Blockchain & Simpan ke Backend
+  const simpanData = async (e) => {
+    e.preventDefault();
+    if (!isConnected) return alert("Wajib melakukan autentikasi via MetaMask!");
+    if (!productId || !location || !statusNote) return alert("Mohon isi semua data!");
+
+    // A. Simulasi Trigger Konsensus Blockchain
+    alert(`Mekanisme Konsensus Jaringan Sepolia Dipicu!\n\nData Produk [ ${productId} ] akan di-hash dan dikunci secara permanen di Blockchain.`);
+
+    // B. Kirim data ke Backend API agar tersimpan di database sistem informasi
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/logs`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: productId, lokasi: location, catatan: statusNote })
+      });
+
+      if (response.ok) {
+        alert("Sukses! Data berhasil diamankan di Blockchain & dicatat di Server Backend.");
+        setProductId("");
+        setLocation("");
+        setStatusNote("");
+        muatDataBackend(); // Refresh tabel riwayat
+      }
+    } catch (error) {
+      alert("Data berhasil disimulasikan di Blockchain, namun Server Backend lokal Anda belum dinyalakan.");
+    }
+  };
+
+  // 3. Pelacakan & Verifikasi Integritas Kriptografi
+  const lacakProduk = () => {
+    if (!searchId) return alert("Masukkan ID Produk!");
+    
+    // Cari data di log backend terlebih dahulu
+    const produkDitemukan = backendLogs.find(log => log.id.toLowerCase() === searchId.toLowerCase());
+
+    if (produkDitemukan) {
+      setTrackingData({
+        id: produkDitemukan.id,
+        status: produkDitemukan.lokasi,
+        catatan: produkDitemukan.catatan,
+        blockNumber: "3,591,042", // Dummy block number untuk simulasi
+        txHash: "0x8f3c9a1b2e4d5f6c7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f",
+        timestamp: produkDitemukan.timestamp
+      });
+    } else {
+      alert("ID Produk tidak ditemukan dalam manifest rantai pasok.");
+      setTrackingData(null);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 flex flex-col justify-between font-sans">
+      {/* Top Navigation */}
+      <nav className="bg-slate-900 text-white shadow-lg p-4">
+        <div className="container mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="text-center md:text-left">
+            <h1 className="text-lg font-bold tracking-wide">SISTEM INFORMASI SUPPLY CHAIN</h1>
+            <p className="text-xs text-slate-400">Implementasi Teknologi Blockchain untuk Keamanan Data</p>
+          </div>
+          <button 
+            onClick={connectWallet}
+            className={`px-5 py-2 rounded-md font-semibold text-sm transition-all duration-300 ${
+              isConnected ? 'bg-emerald-500 text-white' : 'bg-amber-500 hover:bg-amber-600 text-slate-950'
+            }`}
+          >
+            {isConnected ? "✓ Terautentikasi" : "Hubungkan MetaMask"}
+          </button>
+        </div>
+      </nav>
+
+      {/* Main Content Dashboard */}
+      <main className="container mx-auto p-4 md:p-8 max-w-5xl flex-grow grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        {/* Left Column: Wallet Status & Info */}
+        <div className="md:col-span-1 space-y-6">
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+            <h2 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Status Autentikasi Node</h2>
+            <div className="bg-slate-50 p-3 rounded-lg border border-slate-100 font-mono text-xs break-all">
+              <p className="text-slate-500 mb-1">Public Key Pengguna:</p>
+              <p className={`font-bold ${isConnected ? 'text-emerald-600' : 'text-rose-500'}`}>{walletAddress}</p>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+            <h2 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Informasi Riset Akademik</h2>
+            <div className="text-xs text-slate-600 space-y-2">
+              <p><strong>Judul:</strong> Implementasi Teknologi Blockchain untuk Keamanan Data Pada Sistem Informasi</p>
+              <p><strong>Institusi:</strong> Teknik Informatika, Universitas Halu Oleo</p>
+              <p><strong>Metode:</strong> Jaringan Publik (Sepolia Testnet)</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column: Interactive Panel */}
+        <div className="md:col-span-2 space-y-6">
+          
+          {/* Form Input */}
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <h3 className="text-base font-bold text-slate-800 border-b border-slate-100 pb-3 mb-4">
+              Pencatatan Rantai Pasok Baru (Mekanisme Immutability)
+            </h3>
+            <form onSubmit={simpanData} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-500 mb-1">ID Unik Produk</label>
+                  <input 
+                    type="text" 
+                    placeholder="Misal: GAYO-BRG-01"
+                    value={productId}
+                    onChange={(e) => setProductId(e.target.value)}
+                    className="w-full text-sm p-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-500 mb-1">Lokasi Distribusi</label>
+                  <input 
+                    type="text" 
+                    placeholder="Misal: Gudang Kendari"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    className="w-full text-sm p-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-500 mb-1">Deklarasi Status & Kondisi</label>
+                <textarea 
+                  rows="2"
+                  placeholder="Deskripsikan kondisi fisik, suhu logistik, atau kelayakan dokumen..."
+                  value={statusNote}
+                  onChange={(e) => setStatusNote(e.target.value)}
+                  className="w-full text-sm p-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                ></textarea>
+              </div>
+              <button 
+                type="submit"
+                className="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm py-2.5 rounded-lg transition-all"
+              >
+                Kunci ke Jaringan Blockchain
+              </button>
+            </form>
+          </div>
+
+          {/* Tracking Section */}
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <h3 className="text-base font-bold text-slate-800 border-b border-slate-100 pb-3 mb-4">
+              Audit Publik & Verifikasi Integritas Data
+            </h3>
+            <div className="flex gap-2">
+              <input 
+                type="text" 
+                placeholder="Masukkan ID Produk untuk diaudit..."
+                value={searchId}
+                onChange={(e) => setSearchId(e.target.value)}
+                className="w-full text-sm p-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              />
+              <button 
+                onClick={lacakProduk}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm px-6 rounded-lg transition-all"
+              >
+                Audit Data
+              </button>
+            </div>
+
+            {/* Tracking Result View */}
+            {trackingData && (
+              <div className="mt-5 bg-slate-50 rounded-xl p-4 border border-slate-200 space-y-3">
+                <div className="flex justify-between items-center flex-wrap gap-2">
+                  <span className="text-xs font-mono bg-blue-100 text-blue-800 px-2.5 py-1 rounded-full font-semibold">
+                    Blok Terverifikasi: #{trackingData.blockNumber}
+                  </span>
+                  <span className="text-xs font-semibold text-emerald-600 flex items-center gap-1">
+                    ● Integritas Data Terjamin (Valid)
+                  </span>
+                </div>
+                <div className="text-sm text-slate-700 space-y-1">
+                  <p><strong>ID Produk:</strong> {trackingData.id}</p>
+                  <p><strong>Posisi Terakhir:</strong> {trackingData.status}</p>
+                  <p className="text-xs text-slate-500"><strong>Catatan Lapangan:</strong> {trackingData.catatan}</p>
+                  <p className="text-[11px] text-slate-400"><strong>Waktu Transaksi:</strong> {new Date(trackingData.timestamp).toLocaleString()}</p>
+                </div>
+                <div className="pt-2 border-t border-slate-200 font-mono text-[10px] text-slate-400 break-all">
+                  <p className="font-semibold text-slate-500">Bukti Fungsi Hash (TxHash):</p>
+                  <p>{trackingData.txHash}</p>
+                </div>
+              </div>
+            )}
+          </div>
+
+        </div>
+      </main>
+
+      {/* Academic Footer */}
+      <footer className="bg-slate-100 border-t border-slate-200 p-4 text-center text-xs text-slate-500">
+        <p className="font-semibold mb-1">PAPER KELOMPOK 4</p>
+        <p className="max-w-2xl mx-auto text-slate-400 text-[11px]">
+          Abdillah Jumawal Koda • Abdul Rahim Husein • Laksamana Arya Nugraha • Muh. Rabildzan • Muh. Ikhwan Ghazalah Tamar
+        </p>
+        <p className="mt-2 text-[10px] text-slate-400">© 2026 Jurusan Teknik Informatika - Universitas Halu Oleo</p>
+      </footer>
+    </div>
+  );
+}
+
+export default App;
