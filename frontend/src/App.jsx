@@ -12,7 +12,7 @@ function App() {
   const [backendLogs, setBackendLogs] = useState([]);
 
   // URL Backend (Ganti dengan URL Vercel Backend jika sudah di-deploy nanti)
-  const BACKEND_URL = "http://localhost:5000"; 
+  const BACKEND_URL = "https://supplychain-blockchain-vugl.vercel.app/"; 
 
   // Ambil data log dari backend saat aplikasi pertama kali dibuka
   useEffect(() => {
