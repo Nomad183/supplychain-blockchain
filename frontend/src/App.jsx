@@ -43,7 +43,11 @@ function App() {
         setWalletAddress(address);
         setIsConnected(true);
       } catch (error) {
-        alert("Gagal menghubungkan dompet: " + error.message);
+        if (error.code === -32002 || (error.message && error.message.includes("-32002"))) {
+          alert("Permintaan koneksi sudah dikirim! Silakan buka ekstensi MetaMask Anda (ikon rubah di pojok kanan atas browser) untuk menyetujui koneksi.");
+        } else {
+          alert("Gagal menghubungkan dompet: " + error.message);
+        }
       }
     } else {
       alert("MetaMask tidak mendeteksi browser Web3. Silakan instal ekstensi MetaMask!");
