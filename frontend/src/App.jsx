@@ -19,162 +19,59 @@ function App() {
 
   // PASTE ABI YANG ANDA SALIN DARI REMIX DI SINI
   const CONTRACT_ABI = [
-  [
-	[
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "itemId",
-				"type": "string"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "lokasi",
-				"type": "string"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "catatan",
-				"type": "string"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "timestamp",
-				"type": "uint256"
-			},
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "operator",
-				"type": "address"
-			}
-		],
-		"name": "LogDicatat",
-		"type": "event"
-	},
-	{
-		"inputs": [],
-		"name": "ambilSemuaRiwayat",
-		"outputs": [
-			{
-				"components": [
-					{
-						"internalType": "string",
-						"name": "itemId",
-						"type": "string"
-					},
-					{
-						"internalType": "string",
-						"name": "lokasi",
-						"type": "string"
-					},
-					{
-						"internalType": "string",
-						"name": "catatan",
-						"type": "string"
-					},
-					{
-						"internalType": "uint256",
-						"name": "timestamp",
-						"type": "uint256"
-					},
-					{
-						"internalType": "address",
-						"name": "operator",
-						"type": "address"
-					}
-				],
-				"internalType": "struct SupplyChain.LogBarang[]",
-				"name": "",
-				"type": "tuple[]"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "hitungTotalLog",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"name": "riwayatLogistik",
-		"outputs": [
-			{
-				"internalType": "string",
-				"name": "itemId",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "lokasi",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "catatan",
-				"type": "string"
-			},
-			{
-				"internalType": "uint256",
-				"name": "timestamp",
-				"type": "uint256"
-			},
-			{
-				"internalType": "address",
-				"name": "operator",
-				"type": "address"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "string",
-				"name": "_itemId",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_lokasi",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_catatan",
-				"type": "string"
-			}
-		],
-		"name": "tambahLog",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	}
-]
-]
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": false, "internalType": "string", "name": "itemId", "type": "string" },
+      { "indexed": false, "internalType": "string", "name": "lokasi", "type": "string" },
+      { "indexed": false, "internalType": "string", "name": "catatan", "type": "string" },
+      { "indexed": false, "internalType": "uint256", "name": "timestamp", "type": "uint256" },
+      { "indexed": true, "internalType": "address", "name": "operator", "type": "address" }
+    ],
+    "name": "LogDicatat",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "ambilSemuaRiwayat",
+    "outputs": [
+      {
+        "components": [
+          { "internalType": "string", "name": "itemId", "type": "string" },
+          { "internalType": "string", "name": "lokasi", "type": "string" },
+          { "internalType": "string", "name": "catatan", "type": "string" },
+          { "internalType": "uint256", "name": "timestamp", "type": "uint256" },
+          { "internalType": "address", "name": "operator", "type": "address" }
+        ],
+        "internalType": "struct SupplyChain.LogBarang[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "hitungTotalLog",
+    "outputs": [
+      { "internalType": "uint256", "name": "", "type": "uint256" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "string", "name": "_itemId", "type": "string" },
+      { "internalType": "string", "name": "_lokasi", "type": "string" },
+      { "internalType": "string", "name": "_catatan", "type": "string" }
+    ],
+    "name": "tambahLog",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+];
 ];
 
   // Ambil data log dari backend saat aplikasi pertama kali dibuka
