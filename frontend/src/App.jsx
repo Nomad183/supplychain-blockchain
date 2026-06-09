@@ -11,68 +11,67 @@ function App() {
   const [trackingData, setTrackingData] = useState(null);
   const [backendLogs, setBackendLogs] = useState([]);
 
-  // MASUKKAN ALAMAT KONTRAK YANG ANDA SALIN DARI REMIX DI SINI
+  // ALAMAT KONTRAK REMIX
   const CONTRACT_ADDRESS = "0xD0E7771D31452734A6e3B3b19B03c2e13f7eAD8E";
 
-  // URL Backend (Ganti dengan URL Vercel Backend jika sudah di-deploy nanti)
+  // URL Backend Vercel
   const BACKEND_URL = "https://supplychain-blockchain-vugl.vercel.app"; 
 
-  // PASTE ABI YANG ANDA SALIN DARI REMIX DI SINI
+  // ABI KONTRAK REMIX
   const CONTRACT_ABI = [
-  {
-    "anonymous": false,
-    "inputs": [
-      { "indexed": false, "internalType": "string", "name": "itemId", "type": "string" },
-      { "indexed": false, "internalType": "string", "name": "lokasi", "type": "string" },
-      { "indexed": false, "internalType": "string", "name": "catatan", "type": "string" },
-      { "indexed": false, "internalType": "uint256", "name": "timestamp", "type": "uint256" },
-      { "indexed": true, "internalType": "address", "name": "operator", "type": "address" }
-    ],
-    "name": "LogDicatat",
-    "type": "event"
-  },
-  {
-    "inputs": [],
-    "name": "ambilSemuaRiwayat",
-    "outputs": [
-      {
-        "components": [
-          { "internalType": "string", "name": "itemId", "type": "string" },
-          { "internalType": "string", "name": "lokasi", "type": "string" },
-          { "internalType": "string", "name": "catatan", "type": "string" },
-          { "internalType": "uint256", "name": "timestamp", "type": "uint256" },
-          { "internalType": "address", "name": "operator", "type": "address" }
-        ],
-        "internalType": "struct SupplyChain.LogBarang[]",
-        "name": "",
-        "type": "tuple[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "hitungTotalLog",
-    "outputs": [
-      { "internalType": "uint256", "name": "", "type": "uint256" }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "string", "name": "_itemId", "type": "string" },
-      { "internalType": "string", "name": "_lokasi", "type": "string" },
-      { "internalType": "string", "name": "_catatan", "type": "string" }
-    ],
-    "name": "tambahLog",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  }
-];
-
+    {
+      "anonymous": false,
+      "inputs": [
+        { "indexed": false, "internalType": "string", "name": "itemId", "type": "string" },
+        { "indexed": false, "internalType": "string", "name": "lokasi", "type": "string" },
+        { "indexed": false, "internalType": "string", "name": "catatan", "type": "string" },
+        { "indexed": false, "internalType": "uint256", "name": "timestamp", "type": "uint256" },
+        { "indexed": true, "internalType": "address", "name": "operator", "type": "address" }
+      ],
+      "name": "LogDicatat",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "ambilSemuaRiwayat",
+      "outputs": [
+        {
+          "components": [
+            { "internalType": "string", "name": "itemId", "type": "string" },
+            { "internalType": "string", "name": "lokasi", "type": "string" },
+            { "internalType": "string", "name": "catatan", "type": "string" },
+            { "internalType": "uint256", "name": "timestamp", "type": "uint256" },
+            { "internalType": "address", "name": "operator", "type": "address" }
+          ],
+          "internalType": "struct SupplyChain.LogBarang[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "hitungTotalLog",
+      "outputs": [
+        { "internalType": "uint256", "name": "", "type": "uint256" }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        { "internalType": "string", "name": "_itemId", "type": "string" },
+        { "internalType": "string", "name": "_lokasi", "type": "string" },
+        { "internalType": "string", "name": "_catatan", "type": "string" }
+      ],
+      "name": "tambahLog",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ];
 
   // Ambil data log dari backend saat aplikasi pertama kali dibuka
   useEffect(() => {
@@ -104,7 +103,7 @@ function App() {
         setIsConnected(true);
       } catch (error) {
         if (error.code === -32002 || (error.message && error.message.includes("-32002"))) {
-          alert("Permintaan koneksi sudah dikirim! Silakan buka ekstensi MetaMask Anda (ikon rubah di pojok kanan atas browser) untuk menyetujui koneksi.");
+          alert("Permintaan koneksi sudah dikirim! Silakan buka ekstensi MetaMask Anda untuk menyetujui koneksi.");
         } else {
           alert("Gagal menghubungkan dompet: " + error.message);
         }
@@ -115,10 +114,13 @@ function App() {
   };
 
   // 2. Penguncian Data ke Jaringan Blockchain & Simpan ke Backend
-const simpanData = async (e) => {
+  const simpanData = async (e) => {
     e.preventDefault();
     if (!isConnected) return alert("Wajib melakukan autentikasi via MetaMask!");
     if (!productId || !location || !statusNote) return alert("Mohon isi semua data!");
+
+    let liveTxHash = "";
+    let liveBlockNumber = "";
 
     // A. PROSES ASLI: KUNCI DATA KE BLOCKCHAIN SEPOLIA (WEB3)
     try {
@@ -127,34 +129,38 @@ const simpanData = async (e) => {
         return;
       }
 
-      // Inisialisasi provider dari MetaMask
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
-      
-      // Hubungkan dengan Smart Contract Sepolia Anda menggunakan Alamat dan ABI dari Remix
       const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
       
       alert(`Mekanisme Konsensus Jaringan Sepolia Dipicu!\n\nData Produk [ ${productId} ] akan di-hash. Silakan setujui Gas Fee di MetaMask untuk mengunci data secara permanen.`);
       
-      // Memanggil fungsi 'tambahLog' yang ada di Smart Contract Solidity Anda
       const tx = await contract.getFunction("tambahLog")(productId, location, statusNote);
-      
-      // Menunggu transaksi divalidasi oleh blok jaringan Sepolia
-      await tx.wait();
+      liveTxHash = tx.hash; // Menangkap TxHash asli dari MetaMask
+
+      const receipt = await tx.wait(); // Menunggu blok tervalidasi di Sepolia
+      liveBlockNumber = receipt.blockNumber.toString(); // Menangkap nomor blok asli
+
       alert("Sukses! Data resmi dikunci secara permanen di Blockchain Sepolia (Web3).");
 
     } catch (error) {
       console.error(error);
       alert("Gagal mengunci data ke Blockchain: " + error.message);
-      return; // Menghentikan eksekusi ke backend jika transaksi blockchain ditolak/gagal
+      return; 
     }
 
-    // B. Kirim data ke Backend API agar tersimpan di database sistem informasi (WEB2)
+    // B. Kirim data lengkap dengan bukti Blockchain ke Backend API (WEB2)
     try {
       const response = await fetch(`${BACKEND_URL}/api/logs`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: productId, lokasi: location, catatan: statusNote })
+        body: JSON.stringify({ 
+          id: productId, 
+          lokasi: location, 
+          catatan: statusNote,
+          txHash: liveTxHash,          // Mengirim Hash Asli ke Database
+          blockNumber: liveBlockNumber // Mengirim Nomor Blok Asli ke Database
+        })
       });
 
       if (response.ok) {
@@ -162,7 +168,7 @@ const simpanData = async (e) => {
         setProductId("");
         setLocation("");
         setStatusNote("");
-        muatDataBackend(); // Refresh tabel riwayat agar data baru langsung muncul
+        muatDataBackend(); 
       }
     } catch (error) {
       alert("Data sukses di Blockchain, namun Server Backend Anda belum merespons.");
@@ -173,7 +179,6 @@ const simpanData = async (e) => {
   const lacakProduk = () => {
     if (!searchId) return alert("Masukkan ID Produk!");
     
-    // Cari data di log backend terlebih dahulu
     const produkDitemukan = backendLogs.find(log => log.id.toLowerCase() === searchId.toLowerCase());
 
     if (produkDitemukan) {
@@ -181,15 +186,15 @@ const simpanData = async (e) => {
         id: produkDitemukan.id,
         status: produkDitemukan.lokasi,
         catatan: produkDitemukan.catatan,
-        blockNumber: "3,591,042", // Dummy block number untuk simulasi
-        txHash: "0x8f3c9a1b2e4d5f6c7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f",
+        blockNumber: produkDitemukan.blockNumber || "Memproses...", 
+        txHash: produkDitemukan.txHash || "", 
         timestamp: produkDitemukan.timestamp
       });
     } else {
       alert("ID Produk tidak ditemukan dalam manifest rantai pasok.");
       setTrackingData(null);
     }
-  };
+  }; // Kurung kurawal penutup fungsi yang sebelumnya hilang sudah diperbaiki
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-between font-sans">
@@ -225,7 +230,7 @@ const simpanData = async (e) => {
           </div>
 
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
-            <h2 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Informasi Riset Akademik</h2>
+            <h2 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Informasi Riset Academic</h2>
             <div className="text-xs text-slate-600 space-y-2">
               <p><strong>Judul:</strong> Implementasi Teknologi Blockchain untuk Keamanan Data Pada Sistem Informasi</p>
               <p><strong>Institusi:</strong> Teknik Informatika, Universitas Halu Oleo</p>
@@ -320,11 +325,23 @@ const simpanData = async (e) => {
                   <p><strong>ID Produk:</strong> {trackingData.id}</p>
                   <p><strong>Posisi Terakhir:</strong> {trackingData.status}</p>
                   <p className="text-xs text-slate-500"><strong>Catatan Lapangan:</strong> {trackingData.catatan}</p>
-                  <p className="text-[11px] text-slate-400"><strong>Waktu Transaksi:</strong> {new Date(trackingData.timestamp).toLocaleString()}</p>
+                  <p className="text-[11px] text-slate-400"><strong>Waktu Transaksi:</strong> {trackingData.timestamp ? new Date(trackingData.timestamp).toLocaleString() : "-"}</p>
                 </div>
-                <div className="pt-2 border-t border-slate-200 font-mono text-[10px] text-slate-400 break-all">
-                  <p className="font-semibold text-slate-500">Bukti Fungsi Hash (TxHash):</p>
-                  <p>{trackingData.txHash}</p>
+                <div className="pt-2 border-t border-slate-200 font-mono text-[10px] break-all">
+                  <p className="font-semibold text-slate-500 mb-1">Bukti Fungsi Hash (TxHash):</p>
+                  {/* UPDATE: Mengubah teks buntu menjadi Hyperlink interaktif ke Sepolia Etherscan */}
+                  {trackingData.txHash ? (
+                    <a 
+                      href={`https://sepolia.etherscan.io/tx/${trackingData.txHash}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-500 hover:text-blue-700 hover:underline cursor-pointer block"
+                    >
+                      {trackingData.txHash}
+                    </a>
+                  ) : (
+                    <span className="text-slate-400 italic">Tidak ada hash transaksi terikat</span>
+                  )}
                 </div>
               </div>
             )}
