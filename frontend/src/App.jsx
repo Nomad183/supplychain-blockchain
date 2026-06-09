@@ -20,6 +20,7 @@ function App() {
   // PASTE ABI YANG ANDA SALIN DARI REMIX DI SINI
   const CONTRACT_ABI = [
   [
+	[
 	{
 		"anonymous": false,
 		"inputs": [
@@ -56,29 +57,6 @@ function App() {
 		],
 		"name": "LogDicatat",
 		"type": "event"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "string",
-				"name": "_itemId",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_lokasi",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_catatan",
-				"type": "string"
-			}
-		],
-		"name": "tambahLog",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
 	},
 	{
 		"inputs": [],
@@ -171,7 +149,31 @@ function App() {
 		],
 		"stateMutability": "view",
 		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_itemId",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_lokasi",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_catatan",
+				"type": "string"
+			}
+		],
+		"name": "tambahLog",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
 	}
+]
 ]
 ];
 
@@ -238,7 +240,7 @@ const simpanData = async (e) => {
       alert(`Mekanisme Konsensus Jaringan Sepolia Dipicu!\n\nData Produk [ ${productId} ] akan di-hash. Silakan setujui Gas Fee di MetaMask untuk mengunci data secara permanen.`);
       
       // Memanggil fungsi 'tambahLog' yang ada di Smart Contract Solidity Anda
-      const tx = await contract.tambahLog(productId, location, statusNote);
+      const tx = await contract.getFunction("tambahLog")(productId, location, statusNote);
       
       // Menunggu transaksi divalidasi oleh blok jaringan Sepolia
       await tx.wait();
