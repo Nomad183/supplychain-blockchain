@@ -358,6 +358,47 @@ function App() {
               </div>
             )}
           </div>
+          {/* Tambahkan blok ini di bawah komponen Audit Data */}
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mt-6">
+              <h3 className="text-base font-bold text-slate-800 border-b border-slate-100 pb-3 mb-4">
+                Riwayat Transaksi (Log Global)
+              </h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm text-left">
+                  <thead className="text-xs text-slate-500 uppercase bg-slate-50">
+                    <tr>
+                      <th className="p-3">ID Produk</th>
+                      <th className="p-3">Lokasi</th>
+                      <th className="p-3">TxHash (Link Audit)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {backendLogs.length > 0 ? (
+                      backendLogs.map((log, index) => (
+                        <tr key={index} className="border-b hover:bg-slate-50">
+                          <td className="p-3 font-semibold text-slate-700">{log.id}</td>
+                          <td className="p-3 text-slate-600">{log.lokasi}</td>
+                          <td className="p-3">
+                            <a 
+                              href={`https://sepolia.etherscan.io/tx/${log.txHash}`} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-blue-600 underline font-mono text-xs break-all"
+                            >
+                              {log.txHash.substring(0, 15)}...
+                            </a>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="3" className="p-4 text-center text-slate-400 italic">Belum ada data transaksi.</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
 
         </div>
       </main>
