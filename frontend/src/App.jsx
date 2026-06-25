@@ -403,14 +403,6 @@ function App() {
         </div>
       </main>
 
-      {/* Academic Footer */}
-      <footer className="bg-slate-100 border-t border-slate-200 p-4 text-center text-xs text-slate-500">
-        <p className="font-semibold mb-1">PAPER KELOMPOK 4</p>
-        <p className="max-w-2xl mx-auto text-slate-400 text-[11px]">
-          Abdillah Jumawal Koda • Abdul Rahim Husein • Laksamana Arya Nugraha • Muh. Rabildzan • Muh. Ikhwan Ghazalah Tamar
-        </p>
-        <p className="mt-2 text-[10px] text-slate-400">© 2026 Jurusan Teknik Informatika - Universitas Halu Oleo</p>
-      </footer>
     </div>
   );
 }
